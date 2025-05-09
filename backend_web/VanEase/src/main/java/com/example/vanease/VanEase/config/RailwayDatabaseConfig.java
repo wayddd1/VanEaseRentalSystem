@@ -3,6 +3,7 @@ package com.example.vanease.VanEase.config;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 
 @Configuration
 @EnableTransactionManagement
+@ConditionalOnProperty(name = "use.mysql", havingValue = "true", matchIfMissing = false)
 public class RailwayDatabaseConfig {
 
     private static final Logger logger = Logger.getLogger(RailwayDatabaseConfig.class.getName());
@@ -39,37 +41,54 @@ public class RailwayDatabaseConfig {
     @Value("${MYSQLPASSWORD:}")
     private String mysqlPassword;
 
-    @Bean
-    @Primary
+    @Bean(name = "mysqlDataSource")
     public DataSource dataSource() {
-        String jdbcUrl = String.format("jdbc:mysql://%s:%s/%s", mysqlHost, mysqlPort, mysqlDatabase);
-        
-        logger.info("Configuring Railway DataSource with URL: " + jdbcUrl);
-        logger.info("MySQL Host: " + mysqlHost);
-        logger.info("MySQL Port: " + mysqlPort);
-        logger.info("MySQL Database: " + mysqlDatabase);
-        logger.info("MySQL User: " + mysqlUser);
-        
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(jdbcUrl);
-        config.setUsername(mysqlUser);
-        config.setPassword(mysqlPassword);
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        
-        // Connection pool settings
-        config.setMaximumPoolSize(5);
-        config.setMinimumIdle(2);
-        config.setConnectionTimeout(30000); // 30 seconds
-        config.setIdleTimeout(600000); // 10 minutes
-        config.setMaxLifetime(1800000); // 30 minutes
-        
-        // Add connection test query
-        config.setConnectionTestQuery("SELECT 1");
-        
-        // Add retry settings
-        config.setInitializationFailTimeout(60000); // 1 minute
-        
-        return new HikariDataSource(config);
+        try {
+            String jdbcUrl = String.format("jdbc:mysql://%s:%s/%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", 
+                                         mysqlHost, mysqlPort, mysqlDatabase);
+            
+            logger.info("Attempting to connect to MySQL with URL: " + jdbcUrl);
+            logger.info("MySQL Host: " + mysqlHost);
+            logger.info("MySQL Port: " + mysqlPort);
+            logger.info("MySQL Database: " + mysqlDatabase);
+            logger.info("MySQL User: " + mysqlUser);
+            
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(jdbcUrl);
+            config.setUsername(mysqlUser);
+            config.setPassword(mysqlPassword);
+            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            
+            // Connection pool settings
+            config.setMaximumPoolSize(3);
+            config.setMinimumIdle(1);
+            config.setConnectionTimeout(5000); // 5 seconds
+            config.setIdleTimeout(300000); // 5 minutes
+            config.setMaxLifetime(600000); // 10 minutes
+            
+            // Add connection test query
+            config.setConnectionTestQuery("SELECT 1");
+            
+            // Set a short timeout for initialization
+            config.setInitializationFailTimeout(2000); // 2 seconds
+            
+            HikariDataSource dataSource = new HikariDataSource(config);
+            
+            // Test the connection
+            if (dataSource.getConnection() != null) {
+                logger.info("Successfully connected to MySQL database");
+                // Set the property to indicate MySQL is available
+                System.setProperty("use.mysql", "true");
+                return dataSource;
+            }
+            
+            return dataSource;
+        } catch (Exception e) {
+            logger.severe("Failed to connect to MySQL: " + e.getMessage());
+            // Set the property to indicate MySQL is not available
+            System.setProperty("use.mysql", "false");
+            throw new RuntimeException("Could not connect to MySQL database", e);
+        }
     }
 
     @Bean

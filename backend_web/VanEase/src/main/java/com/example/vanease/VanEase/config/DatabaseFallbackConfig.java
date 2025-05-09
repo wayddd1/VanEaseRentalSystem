@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * This is especially useful for Railway deployment where MySQL might not be immediately available
  */
 @Configuration
-@ConditionalOnProperty(name = "spring.profiles.active", havingValue = "railway")
+@ConditionalOnProperty(name = "use.mysql", havingValue = "false", matchIfMissing = true)
 public class DatabaseFallbackConfig {
 
     private static final Logger logger = Logger.getLogger(DatabaseFallbackConfig.class.getName());
@@ -45,26 +45,30 @@ public class DatabaseFallbackConfig {
     /**
      * Fallback H2 in-memory database for when MySQL is not available
      */
-    @Bean(name = "fallbackDataSource")
+    @Bean
     @Primary
     public DataSource dataSource() {
-        logger.info("Using H2 in-memory database as fallback");
+        logger.info("*** ACTIVATING H2 IN-MEMORY DATABASE FALLBACK ***");
+        logger.info("MySQL connection failed or was not available");
         
         try {
-            // First try to log MySQL environment variables for debugging
-            logger.info("MySQL environment variables:");
+            // Log MySQL environment variables for debugging
+            logger.info("MySQL environment variables that failed:");
             logger.info("MYSQLHOST: " + mysqlHost);
             logger.info("MYSQLPORT: " + mysqlPort);
             logger.info("MYSQLDATABASE: " + mysqlDatabase);
             logger.info("MYSQLUSER: " + mysqlUser);
             
-            // Create H2 in-memory database
-            return new EmbeddedDatabaseBuilder()
+            // Create H2 in-memory database with MySQL compatibility mode
+            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
                     .setType(EmbeddedDatabaseType.H2)
-                    .setName("vanease_db;MODE=MySQL")
-                    .build();
+                    .setName("vanease_db;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
+            
+            logger.info("H2 in-memory database created successfully");
+            return builder.build();
         } catch (Exception e) {
-            logger.severe("Error creating fallback database: " + e.getMessage());
+            logger.severe("Error creating fallback H2 database: " + e.getMessage());
+            e.printStackTrace();
             throw e;
         }
     }
