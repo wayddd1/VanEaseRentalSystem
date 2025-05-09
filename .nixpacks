@@ -1,2 +1,2 @@
-providers = ["java"]
-project_root = "backend_web/VanEase"
+provider = "java"
+root = "backend_web/VanEase"
