@@ -28,7 +28,9 @@ export default function Navbar() {
     const verifyAuth = async () => {
       if (isAuthenticated && (!user || !user.role)) {
         try {
+          console.log('Attempting to fetch user profile in Navbar');
           await fetchUserProfile();
+          console.log('Successfully fetched user profile in Navbar');
         } catch (error) {
           console.error('Error fetching user profile in Navbar:', error);
         }
@@ -60,6 +62,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
+    console.log('Logging out user');
     logout(); // Call the logout function from context
     
     // Also clear localStorage directly as a fallback
@@ -71,6 +74,7 @@ export default function Navbar() {
     
     // Redirect to login page
     navigate("/login");
+    console.log('User logged out and redirected to login');
   };
 
   return (
@@ -92,7 +96,6 @@ export default function Navbar() {
                 <Link to="/customer/dashboard" className="navbar-link">Dashboard</Link>
                 <Link to="/customer/van-list" className="navbar-link">Van List</Link>
                 <Link to="/customer/booking" className="navbar-link">Book A Van</Link>
-                <Link to="/payment" className="navbar-link">Payment</Link>
               </>
             )}
           </div>
@@ -109,13 +112,18 @@ export default function Navbar() {
                     
                     // Check if we have a valid token before navigating
                     if (token || localStorageToken) {
+                      console.log('Token found, navigating to profile');
                       navigate('/customer/profile');
                     } else {
                       // If no token, try to fetch the profile first
+                      console.log('No token found, attempting to fetch profile');
                       fetchUserProfile()
-                        .then(() => navigate('/customer/profile'))
-                        .catch(() => {
-                          console.log('Authentication failed, redirecting to login');
+                        .then(() => {
+                          console.log('Profile fetched successfully, navigating to profile');
+                          navigate('/customer/profile');
+                        })
+                        .catch((error) => {
+                          console.log('Authentication failed, redirecting to login', error);
                           navigate('/login', { state: { returnTo: '/customer/profile' } });
                         });
                     }

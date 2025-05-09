@@ -6,7 +6,22 @@
   <component name="ChangeListManager">
     <list default="true" id="5bda11a3-5a14-4b6c-a819-0ef630706e94" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/CorsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/Procfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/RAILWAY_DEPLOYMENT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/railway.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/DatabaseConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/ProfileConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/config/WebSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/controller/HealthCheckController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/controller/HealthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/java/com/example/vanease/VanEase/controller/RailwayHealthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/resources/application-prod.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend_web/VanEase/src/main/resources/application-railway.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-booking-history.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-booking-history.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-van-booking.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-van-booking.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-van-list.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/app/customer/customer-van-list.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend_web/vanease_frontend/src/components/Navbar.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +37,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5

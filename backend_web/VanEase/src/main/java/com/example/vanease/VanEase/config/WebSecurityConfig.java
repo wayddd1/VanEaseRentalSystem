@@ -69,6 +69,10 @@ public class WebSecurityConfig {
                         // OPTIONS requests should always be allowed for CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Authentication endpoints - using the correct paths
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/auth/refresh").permitAll()
                         .requestMatchers("/auth/login").permitAll()
@@ -80,6 +84,10 @@ public class WebSecurityConfig {
                         
                         // Make all GET vehicle endpoints public
                         .requestMatchers(HttpMethod.GET, "/api/vehicles/**").permitAll()
+                        // Explicitly permit the available vehicles endpoint
+                        .requestMatchers(HttpMethod.GET, "/api/vehicles/available").permitAll()
+                        // Explicitly permit vehicle image endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/vehicles/*/image").permitAll()
 
                         // Vehicle management (non-GET operations)
                         .requestMatchers(HttpMethod.POST, "/api/vehicles/**").hasRole("MANAGER")
@@ -92,26 +100,26 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("CUSTOMER", "MANAGER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("MANAGER")
 
-                        // Booking management - make create endpoints public for testing
+                        // Booking management - make all endpoints public for testing
                         .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/create").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/bookings").hasAnyRole("MANAGER", "ADMIN") // Explicitly allow MANAGER to access all bookings
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/upcoming").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/past").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/{id}").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/**").hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
-                        .requestMatchers(HttpMethod.PUT, "/api/bookings/**").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/**").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/bookings/**").hasAnyRole("CUSTOMER", "MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/bookings").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/upcoming").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/past").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/{id}").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/user/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.PATCH, "/api/bookings/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.DELETE, "/api/bookings/**").permitAll() // Allow public access for testing
 
-                        // Payment management - make create endpoints public for testing
+                        // Payment management - make all endpoints public for testing
                         .requestMatchers(HttpMethod.POST, "/api/payments/create").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/payments/booking/**").hasAnyRole("CUSTOMER", "MANAGER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/payments/method/**").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
-                        .requestMatchers(HttpMethod.GET, "/api/payments/status/**").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/payments/**/status").hasAnyRole("MANAGER", "ADMIN", "CUSTOMER")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/booking/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/payments/method/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.GET, "/api/payments/status/**").permitAll() // Allow public access for testing
+                        .requestMatchers(HttpMethod.PATCH, "/api/payments/**/status").permitAll() // Allow public access for testing
 
                         // Admin-only endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { axiosInstance } from "../../context/AuthContext";
 import "./customer-dashboard.css";
 
 const CustomerDashboard = () => {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
     const fetchVehicles = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/vehicles/available");
-        if (!res.ok) throw new Error("Failed to fetch vehicles");
-        const data = await res.json();
-        setVehicles(data);
-      } catch (err) {
+        // Use axiosInstance with the correct base URL
+        const response = await axiosInstance.get("/api/vehicles/available");
+        console.log("Dashboard vehicles fetched:", response.data);
+        setVehicles(response.data);
+      } catch (error) {
+        console.error("Error fetching vehicles for dashboard:", error);
         setVehicles([]);
       } finally {
         setLoading(false);
@@ -33,8 +35,8 @@ const CustomerDashboard = () => {
       navigate('/customer/booking', {
         state: {
           vehicleId: vehicle.id,
-          vehicleName: `${vehicle.brand} ${vehicle.model}`,
-          imageUrl: vehicle.imageUrl || `/api/vehicles/${vehicle.id}/image`,
+          vehicleName: `${vehicle.brand} ${vehicle.model} (${vehicle.year})`,
+          imageUrl: vehicle.imageUrl || `http://localhost:8080/api/vehicles/${vehicle.id}/image`,
           ratePerDay: vehicle.ratePerDay
         }
       });
@@ -63,7 +65,17 @@ const CustomerDashboard = () => {
               <div className="vehicle-card customer-view" key={vehicle.id}>
                 <div className="vehicle-img-wrap">
                   {vehicle.imageUrl || vehicle.imageSize ? (
-                    <img src={vehicle.imageUrl || `/api/vehicles/${vehicle.id}/image`} alt="Vehicle" className="vehicle-image" />
+                    <img 
+                    src={vehicle.imageUrl || `http://localhost:8080/api/vehicles/${vehicle.id}/image`} 
+                    alt="Vehicle" 
+                    className="vehicle-image" 
+                    onError={(e) => {
+                      console.log("Image load error, using placeholder");
+                      e.target.onerror = null;
+                      e.target.style.display = "none";
+                      e.target.parentNode.innerHTML = '<div class="vehicle-image-placeholder">No Image</div>';
+                    }}
+                  />
                   ) : (
                     <div className="vehicle-image-placeholder">No Image</div>
                   )}

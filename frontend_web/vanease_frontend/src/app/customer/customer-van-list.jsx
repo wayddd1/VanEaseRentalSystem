@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../../context/AuthContext";
 import "./customer-van-list.css";
 
 const initialFilters = {
@@ -22,11 +23,13 @@ const CustomerVanList = () => {
     const fetchVehicles = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/vehicles/available");
-        const data = await res.json();
-        setVehicles(data);
-        setFiltered(data);
-      } catch {
+        // Use axiosInstance with the correct base URL
+        const response = await axiosInstance.get("/api/vehicles/available");
+        console.log("Vehicles fetched:", response.data);
+        setVehicles(response.data);
+        setFiltered(response.data);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
         setVehicles([]);
         setFiltered([]);
       } finally {
@@ -97,7 +100,17 @@ const CustomerVanList = () => {
             <div className="vehicle-card customer-view" key={vehicle.id}>
               <div className="vehicle-img-wrap">
                 {vehicle.imageUrl || vehicle.imageSize ? (
-                  <img src={vehicle.imageUrl || `/api/vehicles/${vehicle.id}/image`} alt="Vehicle" className="vehicle-image" />
+                  <img 
+                    src={vehicle.imageUrl || `http://localhost:8080/api/vehicles/${vehicle.id}/image`} 
+                    alt="Vehicle" 
+                    className="vehicle-image" 
+                    onError={(e) => {
+                      console.log("Image load error, using placeholder");
+                      e.target.onerror = null;
+                      e.target.style.display = "none";
+                      e.target.parentNode.innerHTML = '<div class="vehicle-image-placeholder">No Image</div>';
+                    }}
+                  />
                 ) : (
                   <div className="vehicle-image-placeholder">No Image</div>
                 )}
@@ -118,7 +131,7 @@ const CustomerVanList = () => {
                     vehicleId: vehicle.id,
                     vehicleName: `${vehicle.brand} ${vehicle.model} (${vehicle.year})`,
                     ratePerDay: vehicle.ratePerDay,
-                    imageUrl: vehicle.imageUrl || `/api/vehicles/${vehicle.id}/image`
+                    imageUrl: vehicle.imageUrl || `http://localhost:8080/api/vehicles/${vehicle.id}/image`
                   }
                 })}>
                   {vehicle.status === "AVAILABLE" ? "Book Now" : "Not Available"}

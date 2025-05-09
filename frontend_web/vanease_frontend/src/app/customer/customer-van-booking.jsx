@@ -30,10 +30,18 @@ const CustomerVanBooking = () => {
   const state = location.state || {};
   
   // Extract vehicle details from location state if available
-  const preSelectedVehicleId = state.vehicleId || "";
+  const preSelectedVehicleId = state.vehicleId ? state.vehicleId.toString() : "";
   const preSelectedVehicleName = state.vehicleName || "";
   const preSelectedVehicleImage = state.imageUrl || "";
   const preSelectedRate = state.ratePerDay || "";
+  
+  // Log the pre-selected vehicle information for debugging
+  console.log("Pre-selected vehicle info:", { 
+    id: preSelectedVehicleId, 
+    name: preSelectedVehicleName, 
+    image: preSelectedVehicleImage,
+    rate: preSelectedRate 
+  });
   
   // Form state - initialize with saved data from localStorage or pre-selected vehicle
   const [form, setForm] = useState(() => {
@@ -94,12 +102,13 @@ const CustomerVanBooking = () => {
           
           // If we have a pre-selected vehicle from the dashboard, auto-advance to step 2
           if (preSelectedVehicleId && !savedStep) {
+            console.log('Auto-advancing to step 2 with pre-selected vehicle:', preSelectedVehicleId);
             // Wait a short time to ensure vehicle data is loaded
             setTimeout(() => {
               const newStep = 2; // Move to trip details step
               setCurrentStep(newStep);
               localStorage.setItem('bookingCurrentStep', newStep);
-            }, 500);
+            }, 1000); // Increased timeout to ensure data is loaded
           } else if (savedStep) {
             // Restore the saved step
             setCurrentStep(parseInt(savedStep));
@@ -118,7 +127,8 @@ const CustomerVanBooking = () => {
   const fetchAvailableVehicles = async (token) => {
     setLoadingVehicles(true);
     try {
-      console.log('Fetching available vehicles...');
+      console.log('Fetching available vehicles from database...');
+      // Use axiosInstance to ensure proper base URL
       const response = await axiosInstance.get('/api/vehicles/available', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -126,26 +136,36 @@ const CustomerVanBooking = () => {
       });
 
       const data = response.data;
-      console.log('Available vehicles:', data);
+      console.log('Available vehicles fetched from database:', data);
+      
+      if (!data || data.length === 0) {
+        toast.warning('No available vehicles found. Please try again later.');
+        setVehicles([]);
+        return;
+      }
       
       // Process vehicle data to ensure image URLs are properly formatted and filter only available vehicles
       const processedVehicles = data
-        .filter(vehicle => vehicle.availability === true)
+        .filter(vehicle => vehicle.status === 'AVAILABLE')
         .map(vehicle => ({
           ...vehicle,
           imageUrl: vehicle.imageUrl ? 
-            (vehicle.imageUrl.startsWith('http') || vehicle.imageUrl.startsWith('/') ? 
+            (vehicle.imageUrl.startsWith('http') ? 
               vehicle.imageUrl : 
-              `http://localhost:8080${vehicle.imageUrl.startsWith('/') ? '' : '/'}${vehicle.imageUrl}`
-            ) : 'https://via.placeholder.com/150x100?text=Van+Image'
+              `http://localhost:8080/api/vehicles/${vehicle.id}/image`
+            ) : null
         }));
       
+      console.log('Processed vehicles:', processedVehicles);
       setVehicles(processedVehicles);
       
       // If we have a pre-selected vehicle, verify it's still available
       if (preSelectedVehicleId) {
-        console.log('Pre-selected vehicle ID:', preSelectedVehicleId);
-        const vehicle = processedVehicles.find(v => v.id === parseInt(preSelectedVehicleId));
+        console.log('Pre-selected vehicle ID:', preSelectedVehicleId, 'Type:', typeof preSelectedVehicleId);
+        console.log('Available vehicle IDs:', processedVehicles.map(v => ({ id: v.id, type: typeof v.id })));
+        
+        // Convert both to strings for comparison to avoid type mismatches
+        const vehicle = processedVehicles.find(v => v.id.toString() === preSelectedVehicleId.toString());
         if (!vehicle) {
           toast.warning('The selected vehicle is no longer available. Please choose another.');
           const updatedForm = { ...form, vehicleId: '' };
@@ -164,7 +184,7 @@ const CustomerVanBooking = () => {
           if (form.startDate && form.endDate) {
             calculateTotalPrice();
           }
-          toast.success(`${vehicle.brand} ${vehicle.model} has been pre-selected for you.`);
+          toast.success(`${vehicle.brand} ${vehicle.model} (${vehicle.year}) has been pre-selected for you.`);
         }
       } else {
         // Check if we have a saved vehicle in form data
@@ -181,71 +201,14 @@ const CustomerVanBooking = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching vehicles:', error);
-      toast.warning('Could not load vehicles from server. Using sample data.');
-      
-      // Fallback to sample data
-      const sampleVehicles = [
-        { 
-          id: 1, 
-          brand: "Toyota", 
-          model: "HiAce", 
-          imageUrl: "https://via.placeholder.com/150x100?text=Toyota+HiAce", 
-          ratePerDay: 2500, 
-          description: "Comfortable 10-seater van", 
-          status: "AVAILABLE", 
-          availability: true, 
-          passengerCapacity: 10,
-          plateNumber: "ABC-123",
-          transmission: "Automatic",
-          fuelType: "Diesel",
-          year: 2022
-        },
-        { 
-          id: 2, 
-          brand: "Ford", 
-          model: "Transit", 
-          imageUrl: "https://via.placeholder.com/150x100?text=Ford+Transit", 
-          ratePerDay: 3000, 
-          description: "Spacious 12-seater van with cargo space", 
-          status: "AVAILABLE", 
-          availability: true, 
-          passengerCapacity: 12,
-          plateNumber: "DEF-456",
-          transmission: "Manual",
-          fuelType: "Diesel",
-          year: 2023
-        },
-        { 
-          id: 3, 
-          brand: "Mercedes", 
-          model: "Sprinter", 
-          imageUrl: "https://via.placeholder.com/150x100?text=Mercedes", 
-          ratePerDay: 3500, 
-          description: "Luxury 8-seater van", 
-          status: "AVAILABLE", 
-          availability: true, 
-          passengerCapacity: 8,
-          plateNumber: "GHI-789",
-          transmission: "Automatic",
-          fuelType: "Diesel",
-          year: 2024
-        }
-      ];
-      setVehicles(sampleVehicles);
-      
-      // If we have a pre-selected vehicle, find it in sample data
-      if (preSelectedVehicleId) {
-        const vehicle = sampleVehicles.find(v => v.id === parseInt(preSelectedVehicleId));
-        if (vehicle) {
-          setSelectedVehicle(vehicle);
-        }
-      }
+      console.error('Error fetching vehicles from database:', error);
+      toast.error('Could not load vehicles from the server. Please try again later or contact support.');
+      setVehicles([]);
     } finally {
       setLoadingVehicles(false);
     }
   };
-  
+
   // Function to check date availability for a specific vehicle
   const checkDateAvailability = async () => {
     const { vehicleId, startDate, endDate } = form;
@@ -596,9 +559,9 @@ const CustomerVanBooking = () => {
                   <option 
                     key={vehicle.id} 
                     value={vehicle.id.toString()} 
-                    selected={parseInt(preSelectedVehicleId) === vehicle.id}
+                    selected={preSelectedVehicleId.toString() === vehicle.id.toString()}
                   >
-                    {vehicle.brand} {vehicle.model} - ₱{vehicle.ratePerDay}/day - {vehicle.passengerCapacity} passengers
+                    {vehicle.brand} {vehicle.model} ({vehicle.year}) - ₱{vehicle.ratePerDay}/day - {vehicle.capacity || vehicle.passengerCapacity || 'N/A'} passengers
                   </option>
                 ))}
               </select>
@@ -611,7 +574,7 @@ const CustomerVanBooking = () => {
                 <div className="vehicle-info-grid">
                   <div className="info-row">
                     <span className="info-label">Vehicle:</span>
-                    <span className="info-value">{selectedVehicle.brand} {selectedVehicle.model}</span>
+                    <span className="info-value">{selectedVehicle.brand} {selectedVehicle.model} ({selectedVehicle.year})</span>
                   </div>
                   <div className="info-row">
                     <span className="info-label">Plate Number:</span>
@@ -619,7 +582,7 @@ const CustomerVanBooking = () => {
                   </div>
                   <div className="info-row">
                     <span className="info-label">Capacity:</span>
-                    <span className="info-value">{selectedVehicle.passengerCapacity} passengers</span>
+                    <span className="info-value">{selectedVehicle.capacity || selectedVehicle.passengerCapacity || 'N/A'} passengers</span>
                   </div>
                   <div className="info-row">
                     <span className="info-label">Rate:</span>
