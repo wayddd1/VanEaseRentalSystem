@@ -2,13 +2,15 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "nixpacksConfigPath": "nixpacks.toml"
+        "watchPatterns": [
+            "backend_web/VanEase/src/**"
+        ]
     },
     "deploy": {
-        "numReplicas": 1,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10,
         "healthcheckPath": "/api/health",
         "healthcheckTimeout": 300,
-        "restartPolicyType": "ON_FAILURE",
-        "restartPolicyMaxRetries": 5
+        "numReplicas": 1
     }
 }
