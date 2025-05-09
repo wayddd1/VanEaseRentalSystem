@@ -1,9 +1,9 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend_web/VanEase && chmod +x mvnw && ./mvnw package -DskipTests"
+buildCommand = "chmod +x backend_web/VanEase/mvnw && ./backend_web/VanEase/mvnw -f backend_web/VanEase/pom.xml clean package -DskipTests"
 
 [deploy]
-startCommand = "cd backend_web/VanEase && java -Dspring.profiles.active=prod -jar target/VanEase-0.0.1-SNAPSHOT.jar"
+startCommand = "java -Dspring.profiles.active=prod -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar"
 healthcheckPath = "/api/health/simple"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
