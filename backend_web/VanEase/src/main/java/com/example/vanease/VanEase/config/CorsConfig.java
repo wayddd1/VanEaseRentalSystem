@@ -15,9 +15,14 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow specific origins - for development, we'll be more permissive
+        // Allow specific origins - including Railway deployment URLs
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("http://127.0.0.1:3000");
+        config.addAllowedOrigin("https://vaneaserentalsystem-production.up.railway.app");
+        config.addAllowedOrigin("https://vaneaserentalsystem-frontend.up.railway.app");
+        // Allow requests from any origin in production
+        // Uncomment this for production if needed
+        // config.addAllowedOrigin("*");
         
         // Allow all HTTP methods
         config.addAllowedMethod("*");
