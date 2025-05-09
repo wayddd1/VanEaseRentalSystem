@@ -2,11 +2,11 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "cd backend_web/VanEase && ./mvnw package -DskipTests"
+        "buildCommand": "./backend_web/VanEase/mvnw -f backend_web/VanEase/pom.xml package -DskipTests"
     },
     "deploy": {
         "numReplicas": 1,
-        "startCommand": "cd backend_web/VanEase && java -Dspring.profiles.active=prod -jar target/VanEase-0.0.1-SNAPSHOT.jar",
+        "startCommand": "java -Dspring.profiles.active=prod -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar",
         "healthcheckPath": "/api/health",
         "healthcheckTimeout": 300,
         "restartPolicyType": "ON_FAILURE",
