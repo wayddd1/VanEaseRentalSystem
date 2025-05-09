@@ -1,3 +1,2 @@
 providers = ["java"]
-project_type = "java"
-project_path = "backend_web/VanEase"
+project_root = "backend_web/VanEase"
