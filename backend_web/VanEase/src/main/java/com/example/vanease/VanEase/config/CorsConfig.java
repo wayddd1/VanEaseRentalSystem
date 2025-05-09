@@ -20,9 +20,11 @@ public class CorsConfig {
         config.addAllowedOrigin("http://127.0.0.1:3000");
         config.addAllowedOrigin("https://vaneaserentalsystem-production.up.railway.app");
         config.addAllowedOrigin("https://vaneaserentalsystem-frontend.up.railway.app");
-        // Allow requests from any origin in production
-        // Uncomment this for production if needed
-        // config.addAllowedOrigin("*");
+        // Railway deployment URLs with wildcard subdomains
+        config.addAllowedOrigin("https://*.up.railway.app");
+        config.addAllowedOrigin("https://*.railway.app");
+        // For development with Railway
+        config.addAllowedOrigin("https://railway.app");
         
         // Allow all HTTP methods
         config.addAllowedMethod("*");

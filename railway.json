@@ -1,11 +1,15 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
-        "builder": "DOCKERFILE",
-        "dockerfilePath": "Dockerfile"
+        "builder": "NIXPACKS",
+        "buildCommand": "cd backend_web/VanEase && ./mvnw package -DskipTests"
     },
     "deploy": {
-        "healthcheckPath": "/",
-        "restartPolicyType": "ON_FAILURE"
+        "numReplicas": 1,
+        "startCommand": "cd backend_web/VanEase && java -Dspring.profiles.active=prod -jar target/VanEase-0.0.1-SNAPSHOT.jar",
+        "healthcheckPath": "/api/health",
+        "healthcheckTimeout": 300,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 5
     }
 }
