@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["maven", "openjdk21"]
+nixPkgs = ["maven", "openjdk17"]
 aptPkgs = ["default-jre", "default-jdk"]
 
 [phases.build]
