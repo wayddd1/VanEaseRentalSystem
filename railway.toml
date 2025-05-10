@@ -1,16 +1,9 @@
 [build]
-builder = "nixpacks"
-buildCommand = "chmod +x backend_web/VanEase/mvnw && ./backend_web/VanEase/mvnw -f backend_web/VanEase/pom.xml clean package -DskipTests"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "java -Dspring.profiles.active=prod -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar"
 healthcheckPath = "/api/health/simple"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-
-[nixpacks]
-nixPackages = ["openjdk17", "maven"]
-
-[phases.setup]
-aptPkgs = ["default-jre", "default-jdk"]

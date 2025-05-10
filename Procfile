@@ -1,1 +1,1 @@
-web: ./backend_web/VanEase/mvnw -f backend_web/VanEase/pom.xml spring-boot:run -Dspring-boot.run.profiles=prod
+web: java -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
