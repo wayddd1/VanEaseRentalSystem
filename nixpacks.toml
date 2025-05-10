@@ -1,5 +1,6 @@
 [phases.setup]
 nixPkgs = ["maven", "openjdk21"]
+aptPkgs = ["default-jre", "default-jdk"]
 
 [phases.build]
 cmds = [
@@ -14,5 +15,3 @@ cmd = "java -Xms128m -Xmx512m -Dspring.profiles.active=prod -jar backend_web/Van
 [variables]
 PORT = "8080"
 
-[phases.setup.aptPkgs]
-packages = ["default-jre", "default-jdk"]
