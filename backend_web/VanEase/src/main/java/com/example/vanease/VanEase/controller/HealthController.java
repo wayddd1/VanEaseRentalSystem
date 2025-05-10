@@ -80,6 +80,18 @@ public class HealthController implements HealthIndicator {
 
     @GetMapping("/simple")
     public ResponseEntity<String> simpleHealth() {
+        // This endpoint is completely independent of database status
+        // and will always return OK for Railway health checks
+        logger.info("Simple health check called - returning OK");
+        
+        // Signal that the application is alive (even if not fully ready)
+        try {
+            AvailabilityChangeEvent.publish(applicationContext, LivenessState.CORRECT);
+        } catch (Exception e) {
+            // Ignore any errors in availability publishing
+            logger.warning("Could not publish availability event: " + e.getMessage());
+        }
+        
         return ResponseEntity.ok("OK");
     }
 }

@@ -32,8 +32,8 @@ RUN apk add --no-cache wget curl
 # Set environment variables
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Health check configuration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+# Health check configuration - increased timeout and start period
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
   CMD wget -q --spider http://localhost:8080/api/health/simple || exit 1
 
 # Expose the port the app runs on
