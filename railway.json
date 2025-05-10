@@ -2,7 +2,7 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "cd backend_web/VanEase && chmod +x mvnw && ./mvnw clean package -DskipTests"
+        "buildCommand": "cd backend_web/VanEase && chmod +x mvnw && bash ./mvnw clean package -DskipTests"
     },
     "deploy": {
         "restartPolicyType": "ON_FAILURE",
