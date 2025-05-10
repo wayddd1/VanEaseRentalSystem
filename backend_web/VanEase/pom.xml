@@ -19,7 +19,7 @@
 	<description>Van Rental Management System</description>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<jwt.version>0.11.5</jwt.version>
 		<lombok.version>1.18.30</lombok.version>
 		<mysql.version>9.1.0</mysql.version>
@@ -141,7 +141,24 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.4.4</version>
+				<version>3.2.3</version>
+				<configuration>
+					<executable>true</executable>
+					<jvmArguments>-Xms128m -Xmx512m</jvmArguments>
+					<image>
+						<name>vanease-rental-system:${project.version}</name>
+					</image>
+					<layers>
+						<enabled>true</enabled>
+					</layers>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -157,6 +174,12 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+			<!-- Ensure resources are properly processed -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
 			</plugin>
 		</plugins>
 	</build>
