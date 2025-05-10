@@ -1,12 +1,18 @@
 [phases.setup]
-nixPkgs = ["maven", "openjdk17"]
+nixPkgs = ["maven", "openjdk21"]
 
 [phases.build]
 cmds = [
   "cd backend_web/VanEase",
   "chmod +x mvnw",
-  "mvn clean package -DskipTests"
+  "./mvnw clean package -DskipTests"
 ]
 
 [start]
-cmd = "java -Dspring.profiles.active=prod -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar"
+cmd = "java -Xms128m -Xmx512m -Dspring.profiles.active=prod -jar backend_web/VanEase/target/VanEase-0.0.1-SNAPSHOT.jar"
+
+[variables]
+PORT = "8080"
+
+[phases.setup.aptPkgs]
+packages = ["default-jre", "default-jdk"]

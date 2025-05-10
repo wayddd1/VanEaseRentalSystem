@@ -14,10 +14,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * Health controller providing endpoints for Railway health checks
+ */
 @RestController
 @RequestMapping("/api/health")
 public class HealthController implements HealthIndicator {
@@ -25,13 +30,31 @@ public class HealthController implements HealthIndicator {
     private static final Logger logger = Logger.getLogger(HealthController.class.getName());
     private final JdbcTemplate jdbcTemplate;
     private final ApplicationContext applicationContext;
+    private final LocalDateTime startupTime;
 
     @Autowired
     public HealthController(JdbcTemplate jdbcTemplate, ApplicationContext applicationContext) {
         this.jdbcTemplate = jdbcTemplate;
         this.applicationContext = applicationContext;
+        this.startupTime = LocalDateTime.now();
+        logger.info("HealthController created at " + startupTime);
+    }
+    
+    @PostConstruct
+    public void init() {
+        logger.info("HealthController initialized at " + startupTime);
+        try {
+            // Signal that the application is alive as soon as this controller is created
+            AvailabilityChangeEvent.publish(applicationContext, LivenessState.CORRECT);
+            logger.info("Published initial liveness state: CORRECT");
+        } catch (Exception e) {
+            logger.warning("Could not publish initial liveness state: " + e.getMessage());
+        }
     }
 
+    /**
+     * Main health check endpoint that tests database connectivity
+     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> healthCheck() {
         Map<String, Object> response = new HashMap<>();
@@ -47,6 +70,9 @@ public class HealthController implements HealthIndicator {
         return new ResponseEntity<>(response, httpStatus);
     }
 
+    /**
+     * Implementation of the HealthIndicator interface
+     */
     @Override
     public Health health() {
         try {
@@ -78,20 +104,36 @@ public class HealthController implements HealthIndicator {
         }
     }
 
+    /**
+     * Simple health check that returns a JSON response
+     * This endpoint is completely independent of database status
+     */
     @GetMapping("/simple")
-    public ResponseEntity<String> simpleHealth() {
-        // This endpoint is completely independent of database status
-        // and will always return OK for Railway health checks
+    public ResponseEntity<Map<String, Object>> simpleHealth() {
         logger.info("Simple health check called - returning OK");
         
         // Signal that the application is alive (even if not fully ready)
         try {
             AvailabilityChangeEvent.publish(applicationContext, LivenessState.CORRECT);
         } catch (Exception e) {
-            // Ignore any errors in availability publishing
             logger.warning("Could not publish availability event: " + e.getMessage());
         }
         
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("startupTime", startupTime.toString());
+        response.put("message", "VanEase Rental System is running");
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Ultra-simple health check that just returns "OK"
+     * Used by Railway for health checks
+     */
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
         return ResponseEntity.ok("OK");
     }
 }
